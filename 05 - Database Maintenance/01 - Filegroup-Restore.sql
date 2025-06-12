@@ -1,5 +1,6 @@
-/*============================================================================
-	File:		0040 - 01 - Piecemeal-Restore.sql
+/*
+	============================================================================
+	File:		01 - Filegroup-Restore.sql
 
 	Summary:	This script demonstrates the benefits of partitioning for VLDB systems
 
@@ -15,7 +16,7 @@
 	Date:		May 2020
 
 	SQL Server Version: 2012 / 2014 / 2016 / 2017 / 2019
-------------------------------------------------------------------------------
+	------------------------------------------------------------------------------
 	Written by Uwe Ricken, db Berater GmbH
 
 	This script is intended only as a supplement to demos and lectures
@@ -25,7 +26,12 @@
 	ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED 
 	TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
 	PARTICULAR PURPOSE.
-============================================================================*/
+	============================================================================
+*/
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
+GO
+
 USE master;
 GO
 
@@ -36,18 +42,18 @@ USE demo_db;
 GO
 
 -- Create a demo table in the database with 20 partitions.
-SELECT * INTO demo_db.dbo.CustomerOrders
-FROM CustomerOrders.dbo.CustomerOrders;
+SELECT * INTO demo_db.dbo.orders
+FROM ERP_Demo.dbo.orders;
 GO
 
+
 -- Create the partition function for the partitioning
-CREATE PARTITION FUNCTION pf_OrderDate(DATE)
+CREATE PARTITION FUNCTION pf_o_orderdate(DATE)
 AS RANGE LEFT FOR VALUES
 (
-	'2000-12-31', '2001-12-31', '2002-12-31', '2003-12-31', '20041231',
-	'20051231', '20061231', '20071231', '20081231', '20091231',
-	'20101231', '20111231', '20121231', '20131231', '20141231',
-	'20151231', '20161231', '20171231', '20181231', '20191231'
+	'2010-12-31', '2011-12-31', '2012-12-31', '2013-12-31', '2014-12-31',
+	'2015-12-31', '2016-12-31', '2017-12-31', '2018-12-31', '2019-12-31',
+	'2020-12-31', '2021-12-31', '2022-12-31', '2023-12-31'
 );
 GO
 
@@ -55,22 +61,22 @@ GO
 DECLARE	@DataPath	NVARCHAR(256) = CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS NVARCHAR(256));
 
 DECLARE	@stmt	NVARCHAR(1024);
-DECLARE	@Year	INT	=	2000;
-WHILE @Year <= 2019
+DECLARE	@Year	INT	=	2010;
+WHILE @Year <= 2023
 BEGIN
-	SET	@stmt = N'ALTER DATABASE demo_db ADD FileGroup ' + QUOTENAME(N'P_' + CAST(@Year AS NCHAR(4))) + N';';
+	SET	@stmt = N'ALTER DATABASE demo_db ADD FileGroup ' + QUOTENAME(N'orders_' + CAST(@Year AS NCHAR(4))) + N';';
 	RAISERROR ('Statement: %s', 0, 1, @stmt);
 	EXEC sys.sp_executeSQL @stmt;
 
 	SET @stmt = N'ALTER DATABASE demo_db
 ADD FILE
 (
-	NAME = ' + QUOTENAME(N'Orders_' + CAST(@Year AS NCHAR(4)), '''') + N',
-	FILENAME = ''' + @DataPath + N'ORDERS_' + CAST(@Year AS NCHAR(4)) + N'.ndf'',
+	NAME = ' + QUOTENAME(N'orders_' + CAST(@Year AS NCHAR(4)), '''') + N',
+	FILENAME = ''' + @DataPath + N'orders_' + CAST(@Year AS NCHAR(4)) + N'.ndf'',
 	SIZE = 128MB,
 	FILEGROWTH = 128MB
 )
-TO FILEGROUP ' + QUOTENAME(N'P_' + CAST(@Year AS NCHAR(4))) + N';';
+TO FILEGROUP ' + QUOTENAME(N'orders_' + CAST(@Year AS NCHAR(4))) + N';';
 	RAISERROR ('Statement: %s', 0, 1, @stmt);
 	EXEC sys.sp_executeSQL @stmt;
 
@@ -79,36 +85,31 @@ END
 GO
 
 -- Create the partition schema to bound the function to the filegroups
-CREATE PARTITION SCHEME [OrderDates]
-AS PARTITION pf_OrderDate
+CREATE PARTITION SCHEME [ps_o_orderdate]
+AS PARTITION pf_o_orderdate
 TO
 (
-	[P_2000], [P_2001], [P_2002], [P_2003], [P_2004],
-	[P_2005], [P_2006], [P_2007], [P_2008], [P_2009],
-	[P_2010], [P_2011], [P_2012], [P_2013], [P_2014],
-	[P_2015], [P_2016], [P_2017], [P_2018], [P_2019]
-	,[PRIMARY]
+	[orders_2010], [orders_2011], [orders_2012], [orders_2013], [orders_2014],
+	[orders_2015], [orders_2016], [orders_2017], [orders_2018], [orders_2019],
+	[orders_2020], [orders_2021], [orders_2022], [orders_2023], [PRIMARY]
 )
 GO
 
 -- Move the table into the partitioned filegroups
-CREATE UNIQUE CLUSTERED INDEX cix_CustomerOrders_OrderDate
-ON dbo.CustomerOrders (Id, OrderDate)
-ON OrderDates(OrderDate)
+CREATE UNIQUE CLUSTERED INDEX cix_orders_o_orderdate
+ON dbo.orders (o_orderkey, o_orderdate)
+ON ps_o_orderdate(o_orderdate);
 GO
 
-SELECT * FROM master.dbo.view_PartitionInformation;
-GO
-
--- Filegroups 2000 - 2018 will be marked as READ_ONLY
+-- Filegroups 2010 - 2020 will be marked as READ_ONLY
 ALTER DATABASE demo_db SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
 GO
 
-DECLARE @I INT = 2000;
+DECLARE @I INT = 2010;
 DECLARE @stmt NVARCHAR(2000);
-WHILE @I < 2018
+WHILE @I <= 2020
 BEGIN
-	SET @stmt = N'ALTER DATABASE [demo_db] MODIFY FILEGROUP P_' + CAST(@I AS NVARCHAR(4)) + N' READONLY;';
+	SET @stmt = N'ALTER DATABASE [demo_db] MODIFY FILEGROUP orders_' + CAST(@I AS NVARCHAR(4)) + N' READONLY;';
 	EXEC sp_executesql @stmt;
 	SET @I += 1;
 END
