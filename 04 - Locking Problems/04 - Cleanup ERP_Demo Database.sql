@@ -30,18 +30,19 @@ GO
 	Before we can remove the filegroups and files we must
 	eliminiate the table schema and partition function
 */
-DROP PROCEDURE IF EXISTS demo.send_machine_data;
-DROP TABLE IF EXISTS demo.machine_protocol;
+DROP PROCEDURE IF EXISTS dbo.import_datawarehouse;
+DROP TABLE IF EXISTS demo.sales_figures;
+DROP TABLE IF EXISTS demo.raw_data;
+DROP TABLE IF EXISTS dbo.import_log;
 GO
 
-IF EXISTS (SELECT * FROM sys.partition_schemes WHERE name = N'ps_machine_id')
-	DROP PARTITION SCHEME ps_machine_id;
+IF EXISTS (SELECT * FROM sys.partition_schemes WHERE name = N'ps_warehouses')
+	DROP PARTITION SCHEME ps_warehouses;
 GO
 
-IF EXISTS (SELECT * FROM sys.partition_functions WHERE name = N'pf_machine_id')
-	DROP PARTITION FUNCTION pf_machine_id;
+IF EXISTS (SELECT * FROM sys.partition_functions WHERE name = N'pf_warehouses')
+	DROP PARTITION FUNCTION pf_warehouses;
 GO
-
 
 DECLARE	@filegroup_name			NVARCHAR(128);
 DECLARE	@file_name				NVARCHAR(128);
@@ -64,7 +65,7 @@ WHILE @@FETCH_STATUS <> -1
 BEGIN
 	IF @file_name IS NOT NULL
 	BEGIN
-		SET	@sql_remove_file = N'DBCC SHRINKFILE (' + QUOTENAME(@file_name) + N'EMPTY_FILE'')';
+		SET	@sql_remove_file = N'DBCC SHRINKFILE (' + QUOTENAME(@file_name) + N', ''EMPTY_FILE'')';
 		PRINT @sql_remove_file;
 		EXEC sp_executesql @sql_remove_file;
 
@@ -90,8 +91,8 @@ CLOSE c;
 DEALLOCATE c;
 GO
 
-IF EXISTS (SELECT * FROM sys.server_event_sessions WHERE name = N'01 - High Transactional Workload')
-	DROP EVENT SESSION [01 - High Transactional Workload] ON SERVER;
+IF EXISTS (SELECT * FROM sys.server_event_sessions WHERE name = N'03 - Locking Problem')
+	DROP EVENT SESSION [03 - Locking Problem] ON SERVER;
 	GO
 
 -- Delete existing trace files from the xevent session...

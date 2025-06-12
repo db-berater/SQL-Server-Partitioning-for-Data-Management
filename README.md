@@ -1,8 +1,8 @@
 <a href="URL_REDIRECT" target="blank"><img align="center" src="https://www.db-berater.de/wp-content/uploads/2015/03/db-berater-gmbh-logo.jpg" height="100" /></a>
-# Session - Partitioning for Beginners
-This repository contains all codes for my session "Partitioning for Beginners". The target group for this session are experienced database programmers who want to use partitioning for their databases.
+# Session - Partitioning for Data Management
+This repository contains all codes for my session "Partitioning for Data Management". The target group for this session are experienced database programmers who want to use partitioning for their databases.
 
-This session provides an overview of the basics of partitioning with Microsoft SQL Server. The session is always run with the latest version of Microsoft SQL Server.
+This session provides real world scenarios of partitioning with Microsoft SQL Server. The session is always run with the latest version of Microsoft SQL Server.
 The repository consists of several folders that are split up by topic.
 
 All scripts are created for the use of Microsoft SQL Server (Version 2016 or higher)
@@ -28,7 +28,7 @@ The demo database contains a framework for all workshops / sessions from db Bera
 + Stored Procedures
 + User Definied Inline Functions
 
-**Version:** 2025-01-20
+**Version:** 2025-06-12
 
 # Folder structure
 + Each topic is stored in a separate folder (e.g. 01 - Documents and Preparation)
@@ -47,33 +47,23 @@ The demo database contains a framework for all workshops / sessions from db Bera
 This folder contains the accompanying PowerPoint presentation for the session. Script 00 - dbo.sp_restore_erp_demo.sql can also be used to install a stored procedure in the master database that is used in the scripts for restoring the database.
 Script 01 - Preparation of demo database.sql restores the database on the local Microsoft SQL Server and resets the server's properties to the default settings.
 
-# 02 - Partitioning - as it begun
-The scripts in this folder are used to demonstrate partitioning in the classic sense by creating a separate table for each year. The tables are then merged into a view using UNION ALL.
+# 02 - Hig Transactional Environment
+All scripts in this folder demonstrate a simulation of a High transactional production environment
+The customer is a pharmaceutical company that produces drugs on various (20) production lines. Every drug has to go through a QA check that stores the data in the SQL Server.
 
-# 03 - components of partitioning
-The folder provides scripts for demonstrating the use of partition functions and partition schemes.
+# 03 - Query Performance Problems
+This folder demonstrate the problems with aggregated queries against a partitioned table.
+The customer must evaluate the last imported o_orderkey before new data are inserted.
+The evaluation of the MAX(o_orderdate) takes to long and scans the whole table!_
 
-# 04 - Partitioning - Implementation
-This folder contains all scripts used to successfully partition the dbo.orders table. Both the partition function and the partition scheme are explained in more detail.
+# 04 - Lockig Problem
+The demo in this folder simulates a workload which transfers data from a staging environment into a data warehouse.
+Staging and prod tables are partitioned but the import into the data warehouse cannot scale.
 
-# 05 - Partitioning - how to use
-The folder provides scripts for using the dbo.orders table partitioned in the previously created schema. It demonstrates which requirements the table must meet in order for partitioning to be successful.
+# 05 - Extended Events
+This folder contains all scripts for the creation of Extended Events for the demos.
 
-# ß6 - Querying Partitioned Data
-Scripts in this folder covers topics about partition elimination when using values from the partition boundaries
-It demonstrates that partitioning is not about improvement of query performance.
-Therefore we demonstrate the bad behavior of partitioned tables when it comes to aggregations
-
-# 07 - Partitioning - Maintenance
-This order provides scripts that demonstrate how to add new partition groups and how to remove existing partitions from the table.
-It is required that the dbo.orders table has been partitioned beforehand using the scripts.
-
-# 08 - Database - Maintenance
-Very large databases must be online very quick in case of Disaster Recovery.
-This folder contains demo scripts for an implementation strategy for backup restore and other maintenance work
-
-# 98 - Query Stress
-json template for Workload test.
-
-# 99 - Windows Admin Center
-json template for Windows Admin Center for the demonstration of resource consumption.
+# ß6 - Batch Files
+This folder contains all .bat files which are dedicated to run simultanious processes with the same character.
+For an easy use of the batch files it is recommended to use a SQL Alias with the name "SQLServer".
+Otherwise you have to change the parameter -S in the script to your SQL Server Instance Name.

@@ -32,6 +32,7 @@ IF SCHEMA_ID(N'demo') IS NULL
 /* Let's create the tables for the demo(s) */
 DROP TABLE IF EXISTS demo.raw_data;
 DROP TABLE IF EXISTS demo.sales_figures;
+DROP TABLE IF EXISTS demo.raw_data;
 GO
 
 /*
