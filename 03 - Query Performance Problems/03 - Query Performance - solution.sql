@@ -38,7 +38,7 @@ GO
 
 SELECT	MAX(o_orderkey)
 FROM	demo.orders
-WHERE	$PARTITION.pf_o_orderdate(o_orderdate) = 1;
+WHERE	$PARTITION.pf_o_orderdate(o_orderdate) = 2;
 GO
 
 /*

@@ -26,6 +26,9 @@ GO
 USE ERP_Demo;
 GO
 
+TRUNCATE TABLE demo.machine_protocol;
+GO
+
 /*
 	We create for each machine one dedicated filegroup
 	and add one file for each filegroup!

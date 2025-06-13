@@ -28,7 +28,7 @@ GO
 SELECT	CAST(event_Data AS xml) AS StatementData
 INTO	#EventData
 FROM	sys.fn_xe_file_target_read_file
-		('T:\TraceFiles\0110*.xel', NULL, NULL, NULL);
+		('T:\TraceFiles\01*.xel', NULL, NULL, NULL);
 GO
 
 WITH XE

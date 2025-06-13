@@ -34,16 +34,16 @@ GO
 	01 - High transactional processes.sql
 */
 
--- Clean all wait counters before we start
+/* Clean all wait counters before we start */
 DBCC SQLPERF(N'sys.dm_os_wait_stats', CLEAR);
 GO
 
 TRUNCATE TABLE demo.machine_protocol;
 GO
 
-SELECT machine_id,
+SELECT	machine_id,
 		COUNT_BIG(*)
-FROM demo.machine_protocol
+FROM	demo.machine_protocol
 GROUP BY
 		machine_id;
 
@@ -67,17 +67,14 @@ FROM	sys.dm_os_waiting_tasks AS dowt
 WHERE	des.is_user_process = 1;
 GO
 
-SELECT * FROM master.dbo.WaitStatsAnalysis
-WHERE
-	WaitType IN
-	(
-		N'WRITELOG',
-		N'PAGELATCH_EX',
-		N'PAGELATCH_SH',
-		N'SOS_SCHEDULER_YIELD',
-		N'PAGEIOLATCH_EX',
-		N'PAGEIOLATCH_SH'
-	);
+SELECT	WaitType,
+		[Total Waittime (seconds)],
+		[Total Ressource Waittime (seconds)],
+		[Total Signal Waittime (seconds)],
+		[Total number of waits],
+		[Percentage of Total Waittime]
+FROM	dbo.get_wait_stats_info
+		(N'WRITELOG, PAGELATCH_EX, PAGETLATCH_SH, SOS_SCHEDULER_YIELD, PAGEIOLATCH_EX, PAGEIOLATCH_SH');
 GO
 
 /* Let's check the runtime for the whole process */
@@ -124,7 +121,7 @@ SELECT	partition_number,
 		index_level,
 		avg_fragmentation_in_percent,
 		avg_page_space_used_in_percent
-FROM sys.dm_db_index_physical_stats
+FROM	sys.dm_db_index_physical_stats
 (
 	DB_ID(),
 	OBJECT_ID(N'demo.machine_protocol',N'U'),

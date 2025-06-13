@@ -50,10 +50,10 @@ GO
 CREATE PARTITION FUNCTION pf_o_orderdate (DATE)
 AS RANGE LEFT FOR VALUES
 (
+	'2019-12-31',
 	'2020-12-31',
 	'2021-12-31',
-	'2022-12-31',
-	'2023-12-31'
+	'2022-12-31'
 );
 GO
 
@@ -77,7 +77,7 @@ GO
 /* ... and fill the last 4 years into the table */
 INSERT INTO demo.orders WITH (TABLOCK)
 SELECT * FROM dbo.orders
-WHERE	o_orderdate >= '2020-01-01';
+WHERE	o_orderdate >= '2019-01-01';
 GO
 
 SELECT * FROM dbo.get_partition_layout_info(N'demo.orders', 1);

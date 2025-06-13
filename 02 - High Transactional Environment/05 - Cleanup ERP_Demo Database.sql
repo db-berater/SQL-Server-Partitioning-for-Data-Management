@@ -1,6 +1,6 @@
 /*
 	============================================================================
-	File:		04 - cleanup ERP_Demo database.sql
+	File:		05 - cleanup ERP_Demo database.sql
 
 	Summary:	This script removes all partitioning elements from the
 				demo database ERP_Demo!
@@ -64,7 +64,7 @@ WHILE @@FETCH_STATUS <> -1
 BEGIN
 	IF @file_name IS NOT NULL
 	BEGIN
-		SET	@sql_remove_file = N'DBCC SHRINKFILE (' + QUOTENAME(@file_name) + N'EMPTY_FILE'')';
+		SET	@sql_remove_file = N'DBCC SHRINKFILE (' + QUOTENAME(@file_name) + N', ''EMPTY_FILE'')';
 		PRINT @sql_remove_file;
 		EXEC sp_executesql @sql_remove_file;
 
@@ -94,16 +94,8 @@ IF EXISTS (SELECT * FROM sys.server_event_sessions WHERE name = N'01 - High Tran
 	DROP EVENT SESSION [01 - High Transactional Workload] ON SERVER;
 	GO
 
--- Delete existing trace files from the xevent session...
-EXEC sp_configure N'show advanced options', 1;
-RECONFIGURE WITH OVERRIDE;
-GO
-
-EXEC sp_configure N'xp_cmdshell', 1;
-RECONFIGURE WITH OVERRIDE;
-GO
-
-EXEC xp_cmdshell N'DEL T:\TraceFiles\*.* /q', no_output;
+/* Delete existing trace files from the xevent session... */
+EXEC dbo.sp_delete_xevent_files @pattern = N'T:\Tracefiles\*.xel';
 GO
 
 DROP TABLE IF EXISTS demo.machine_protocol;

@@ -9,7 +9,7 @@
 					Session - Partitioning for Data Management
 
 	Date:		October 2024
-	Revion:		November 2024
+	Revion:		May 2025
 
 	SQL Server Version: >= 2016
 	============================================================================

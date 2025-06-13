@@ -34,7 +34,8 @@ GO
 	NOTE: There is a clustered index on the o_orderkey attribute
 */
 SELECT	MAX(o_orderkey)
-FROM	demo.orders;
+FROM	demo.orders
+OPTION	(MAXDOP 4);
 GO
 
 /*
@@ -55,11 +56,11 @@ FROM	dbo.get_table_pages_info(N'demo.orders', 1);
 GO
 
 /*
-	Maybe it will get better if we
-	(1:82641:0)
+	Let's have a look into the index!
+	(1:880185:0)
 */
 DBCC TRACEON (3604);
-DBCC PAGE (0, 1, 82641, 3);
+DBCC PAGE (0, 1, 880185, 3);
 GO
 
 /*
@@ -97,7 +98,8 @@ GO
 SELECT	MAX(o_orderkey)
 FROM	demo.orders
 WHERE	o_orderdate >= '2021-01-01'
-		AND o_orderdate <= '2021-12-31';
+		AND o_orderdate <= '2021-12-31'
+OPTION	(MAXDOP 4);
 GO
 
 /*
@@ -105,5 +107,5 @@ GO
 	(1:82641:0)
 */
 DBCC TRACEON (3604);
-DBCC PAGE (0, 1, 82641, 3);
+DBCC PAGE (0, 1, 880185, 3);
 GO

@@ -1,37 +1,27 @@
-IF EXISTS (SELECT * FROM sys.server_event_sessions WHERE name = N'0010 - XE - high Transactional Workload')
+IF EXISTS (SELECT * FROM sys.server_event_sessions WHERE name = N'01 - High Transactional Workload')
 	DROP EVENT SESSION [01 - High Transactional Workload] ON SERVER;
 	GO
 
+EXEC dbo.sp_delete_xevent_files @pattern = N'T:\Tracefiles\*.xel';
+GO
+
 CREATE EVENT SESSION [01 - High Transactional Workload]
 ON SERVER
-ADD EVENT sqlos.wait_info
-(
-	WHERE
-	(
-		duration >=  5
-        AND sqlserver.database_id = 5
-        AND
-		(
-			wait_type = 3
-			OR wait_type = 4
-			OR wait_type = 5
-			OR wait_type = 36
-            OR wait_type = 35
-            OR wait_type = 34
-		)
-	)
-),
 ADD EVENT sqlserver.page_split
 (
 	WHERE
 	(
-		database_id = 5
+		database_name = N'ERP_Demo'
 		AND
 		(
 			splitOperation = 0
 			OR splitOperation = 3
 		)
 	)
+)
+ADD TARGET package0.event_file
+(
+	SET filename = N'T:\TraceFiles\01 - High Transactional Workload'
 )
 WITH
 (
