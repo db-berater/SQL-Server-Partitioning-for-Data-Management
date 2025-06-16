@@ -44,23 +44,19 @@ GO
 SELECT	index_id,
         index_name,
         partition_number,
-        type_desc,
         rows,
-        total_pages,
-        used_pages,
         data_pages,
         space_mb,
-        root_page,
-        first_iam_page
+        root_page
 FROM	dbo.get_table_pages_info(N'demo.orders', 1);
 GO
 
 /*
 	Let's have a look into the index!
-	(1:880185:0)
+	(1:692337:0)
 */
 DBCC TRACEON (3604);
-DBCC PAGE (0, 1, 880185, 3);
+DBCC PAGE (0, 1, 692337, 3);
 GO
 
 /*

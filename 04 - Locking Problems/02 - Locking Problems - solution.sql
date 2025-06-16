@@ -58,7 +58,8 @@ GO
 			article_name
 	OPTION	(MAXDOP 1);
 
-	SELECT	resource_type,
+	SELECT	DISTINCT
+			resource_type,
             resource_associated_entity_id,
             resource_lock_partition,
             request_mode,

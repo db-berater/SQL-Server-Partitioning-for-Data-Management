@@ -27,10 +27,14 @@ USE ERP_Demo;
 GO
 
 IF SCHEMA_ID(N'demo') IS NULL
+BEGIN
+	RAISERROR ('Creating schema [demo]', 0, 1) WITH NOWAIT;
 	EXEC sp_executesql N'CREATE SCHEMA demo AUTHORIZATION dbo;';
-	GO
+END
+GO
 
 -- Let's create the demo table for the machine protocol
+RAISERROR ('Creating table [demo].[orders]', 0, 1) WITH NOWAIT;
 DROP TABLE IF EXISTS demo.orders;
 GO
 
@@ -80,5 +84,12 @@ SELECT * FROM dbo.orders
 WHERE	o_orderdate >= '2019-01-01';
 GO
 
-SELECT * FROM dbo.get_partition_layout_info(N'demo.orders', 1);
+SELECT	[Index ID],
+        [Index],
+        rows,
+        [In-Row MB],
+        [Partition #],
+        [Boundary Type],
+        [Boundary Point]
+FROM	dbo.get_partition_layout_info(N'demo.orders', 1);
 GO
